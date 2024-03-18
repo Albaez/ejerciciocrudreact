@@ -1,51 +1,43 @@
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import { Card, ListGroup } from 'react-bootstrap';
+import Swal from 'sweetalert2';
 
-const ListaUsuarios = () => {
-  const [usuarios, setUsuarios] = useState([]);
+  const ListaUsuarios = () => {
+    const [usuarios, setUsuarios] = useState([]);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+    useEffect(() => {
+      const obtenerUsuarios = async () => {
+        try {
+          const respuesta = await axios.get('https://api.escuelajs.co/api/v1/users');
+          setUsuarios(respuesta.data);
+        } catch (error) {
+          Swal.fire('Error', 'Error al obtener los usuarios', 'error');
+        }
+      };
 
-  const fetchData = async () => {
-    try {
-      const response = await fetch('https://api.escuelajs.co/api/v1/users');
-      const data = await response.json();
-      setUsuarios(data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
+      obtenerUsuarios();
+    }, []);
 
-  const renderUsuario = () => {
-    return usuarios.map((usuario) => (
-      <div key={usuario.id} className="card mb-3">
-        <div className="row g-0">
-          <div className="col-md-4">
-            <img
-              src={usuario.avatar || '/default-avatar.jpg'} // Use default image if avatar is missing
-              alt={`Avatar for ${usuario.name}`}
-              className="img-fluid"
-              style={{ width: '100px', height: '100px' }} // Ajusta el tamaño aquí
-            />
-          </div>
-          <div className="col-md-8">
-            <div className="card-body">
-              <h5 className="card-title">{usuario.name}</h5>
-              <p className="card-text">{usuario.email}</p>
-            </div>
-          </div>
-        </div>
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', 
+      background: '#f5f5f5', padding: '1rem' }}>
+        <h1>Lista de Usuarios</h1>
+        {usuarios.map((usuario) => (
+          <Card key={usuario.id} style={{ width: '18rem' }}>
+            <Card.Img variant="top" src={usuario.avatar || 'default-avatar.png'} tyle={{ height: '100px', objectFit: 'cover' }} />
+            <Card.Body>
+              <Card.Title>{usuario.name}</Card.Title>
+              <Card.Text>{usuario.email}</Card.Text>
+            </Card.Body>
+            <ListGroup className="list-group-flush">
+              <ListGroup.Item>{usuario.phone}</ListGroup.Item>
+              <ListGroup.Item>{usuario.website}</ListGroup.Item>
+            </ListGroup>
+          </Card>
+        ))}
       </div>
-    ));
+    );
   };
 
-  return (
-    <div className="container">
-      <h1 className="my-4">Lista de Usuarios</h1>
-      {renderUsuario()}
-    </div>
-  );
-};
-
-export default ListaUsuarios;
+  export default ListaUsuarios;
